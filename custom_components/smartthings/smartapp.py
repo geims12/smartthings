@@ -22,7 +22,7 @@ from pysmartthings import (
     SubscriptionEntity,
 )
 
-from homeassistant.components import webhook
+from homeassistant.components import webhook, cloud
 from homeassistant.const import CONF_WEBHOOK_ID
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
@@ -30,6 +30,7 @@ from homeassistant.helpers.dispatcher import (
     async_dispatcher_connect,
     async_dispatcher_send,
 )
+from homeassistant.helpers.storage import Store
 from homeassistant.helpers.network import NoURLAvailableError, get_url
 
 from .const import (
@@ -93,7 +94,7 @@ async def validate_installed_app(api, installed_app_id: str):
 
 def validate_webhook_requirements(hass: HomeAssistant) -> bool:
     """Ensure Home Assistant is setup properly to receive webhooks."""
-    if hass.components.cloud.async_active_subscription():
+    if cloud.async_active_subscription(hass):
         return True
     if hass.data[DOMAIN][CONF_CLOUDHOOK_URL] is not None:
         return True
@@ -209,7 +210,7 @@ async def setup_smartapp_endpoint(hass: HomeAssistant):
         return
 
     # Get/create config to store a unique id for this hass instance.
-    store = hass.helpers.storage.Store(STORAGE_VERSION, STORAGE_KEY)
+    store = Store(hass, STORAGE_VERSION, STORAGE_KEY)
     config = await store.async_load()
     if not config:
         # Create config
