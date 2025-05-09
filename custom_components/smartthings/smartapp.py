@@ -230,7 +230,7 @@ async def setup_smartapp_endpoint(hass: HomeAssistant):
     cloudhook_url = config.get(CONF_CLOUDHOOK_URL)
     if (
         cloudhook_url is None
-        and hass.components.cloud.async_active_subscription()
+        and cloud.async_active_subscription(hass)
         and not hass.config_entries.async_entries(DOMAIN)
     ):
         cloudhook_url = await hass.components.cloud.async_create_cloudhook(
